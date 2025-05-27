@@ -105,7 +105,7 @@ def retrain():
         r2 = r2_score(y_test, y_pred)
         pickle.dump(model, open('model_reg.pkl', 'wb'))
 
-        return f"Model retrained. New evaluation metric RMSE: {str(rmse)}, MAPE: {str(mae)}, R²:{str(r2)} "
+        return f"Model retrained. New evaluation metric RMSE: {rmse:.3f}, MAE: {mae:.3f}, R²:{r2:.3f} "
     else:
         return f"<h2>New data for retrain NOT FOUND. Nothing done!</h2>"
 
