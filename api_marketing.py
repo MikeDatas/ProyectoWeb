@@ -58,8 +58,8 @@ def predict():
 
 @app.route('/v1/retrain', methods=['GET'])
 def retrain():
-    if os.path.exists(root_path + "data/Advertising_new.csv"):
-        data = pd.read_csv(root_path +'data/Advertising_new.csv')
+    if os.path.exists(root_path + "data/aguas_new.csv"):
+        data = pd.read_csv(root_path +'data/aguas_new.csv')
 
         X_train, X_test, y_train, y_test = train_test_split(data.drop(columns=['sales']),
                                                         data['sales'],
@@ -71,7 +71,7 @@ def retrain():
         rmse = np.sqrt(mean_squared_error(y_test, model.predict(X_test)))
         mape = mean_absolute_percentage_error(y_test, model.predict(X_test))
         model.fit(data.drop(columns=['sales']), data['sales'])
-        pickle.dump(model, open('ad_model.pkl', 'wb'))
+        pickle.dump(model, open('model_reg.pkl', 'wb'))
 
         return f"Model retrained. New evaluation metric RMSE: {str(rmse)}, MAPE: {str(mape)}"
     else:
@@ -96,10 +96,10 @@ def upload_file():
         return 'No selected file', 400
 
     if file and allowed_file(file.filename):
-        filename = secure_filename("Advertising_new.csv")
+        filename = secure_filename("aguas_new.csv")
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-        return 'File successfully uploaded and saved as Advertising_new.csv'
+        return 'File successfully uploaded and saved as aguas_new.csv'
     else:
         return 'Invalid file type. Only .csv allowed.', 400
 
