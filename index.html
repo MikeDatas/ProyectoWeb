@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Predicción de Ventas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Formulario de Predicción</h1>
+    <form id="predict-form">
+        <label>TV:</label><br>
+        <input type="number" step="any" id="tv" required><br>
+
+        <label>Radio:</label><br>
+        <input type="number" step="any" id="radio" required><br>
+
+        <label>Newspaper:</label><br>
+        <input type="number" step="any" id="newspaper" required><br>
+
+        <button type="submit">Predecir</button>
+    </form>
+
+    <p id="predict-result"></p>
+
+    <hr>
+
+    <h2>Subir CSV para Reentrenar</h2>
+    <form id="retrain-form">
+        <p>
+            Para reentrenar, sube el archivo a la carpeta `data/` manualmente por ahora,<br>
+            y luego haz clic en el botón:
+        </p>
+        <button type="submit">Reentrenar Modelo</button>
+    </form>
+
+    <p id="retrain-result"></p>
+
+    <script>
+        document.getElementById('predict-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const tv = document.getElementById('tv').value;
+            const radio = document.getElementById('radio').value;
+            const newspaper = document.getElementById('newspaper').value;
+
+            fetch(`/v1/predict?tv=${tv}&radio=${radio}&newspaper=${newspaper}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('predict-result').innerText = `Predicción de ventas: ${data.predictions.toFixed(2)}`;
+                })
+                .catch(error => {
+                    document.getElementById('predict-result').innerText = `Error: ${error}`;
+                });
+        });
+
+        document.getElementById('retrain-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            fetch('/v1/retrain')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('retrain-result').innerHTML = data;
+                })
+                .catch(error => {
+                    document.getElementById('retrain-result').innerText = `Error: ${error}`;
+                });
+        });
+    </script>
+
+    <hr>
+
+<h2>Subir nuevo CSV para entrenamiento</h2>
+<form id="upload-form" enctype="multipart/form-data">
+    <input type="file" id="file-input" name="file" accept=".csv" required>
+    <button type="submit">Subir CSV</button>
+</form>
+
+<p id="upload-result"></p>
+
+<script>
+    document.getElementById('upload-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData();
+        const fileInput = document.getElementById('file-input');
+
+        if (fileInput.files.length === 0) {
+            document.getElementById('upload-result').innerText = "Por favor selecciona un archivo CSV.";
+            return;
+        }
+
+        formData.append('file', fileInput.files[0]);
+
+        fetch('/v1/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('upload-result').innerText = data;
+        })
+        .catch(error => {
+            document.getElementById('upload-result').innerText = `Error: ${error}`;
+        });
+    });
+</script>
+</body>
+</html>
