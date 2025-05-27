@@ -243,90 +243,77 @@
 </script>
 
 
-  <hr>
+ <hr>
 
-    <h2>Subir CSV para Reentrenar</h2>
-    <form id="retrain-form">
-        <p>
-            Para reentrenar, sube el archivo a la carpeta `data/` manualmente por ahora,<br>
-            y luego haz clic en el botón:
-        </p>
-        <button type="submit">Reentrenar Modelo</button>
-    </form>
-
-    <p id="retrain-result"></p>
-
-    <script>
-        document.getElementById('predict-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const feat00 = document.getElementById('ammonia_mg_l').value;
-            const feat01 = document.getElementById('biochemical_oxygen_demand_mg_l').value;
-            const feat02 = document.getElementById('dissolved_oxygen_mg_l').value;
-
-            const feat03 = document.getElementById('orthophosphate_mg_l').value;
-            const feat04 = document.getElementById('ph_ph_units').value;
-            const feat05 = document.getElementById('temperature_cel').value;
-
-            const feat06 = document.getElementById('nitrogen_mg_l').value;
-            const feat07 = document.getElementById('nitrate_mg_l').value;
-
-            fetch(`/v1/predict?ammonia_mg_l=${feat00}&biochemical_oxygen_demand_mg_l=${feat01}&dissolved_oxygen_mg_l=${feat02}&orthophosphate_mg_l=${feat03}&ph_ph_units=${feat04}&temperature_cel=${feat05}&nitrogen_mg_l=${feat06}&nitrate_mg_l=${feat07}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('predict-result').innerText = `Predicción de ventas: ${data.predictions.toFixed(2)}`;
-                })
-                .catch(error => {
-                    document.getElementById('predict-result').innerText = `Error: ${error}`;
-                });
-        });
-
-        document.getElementById('retrain-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            fetch('/v1/retrain')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('retrain-result').innerHTML = data;
-                })
-                .catch(error => {
-                    document.getElementById('retrain-result').innerText = `Error: ${error}`;
-                });
-        });
-    </script>
-
-    <hr>
-
-<h2>Subir nuevo CSV para entrenamiento</h2>
-<form id="upload-form" enctype="multipart/form-data">
+<h2>Subir CSV y Reentrenar Modelo</h2>
+<form id="upload-retrain-form" enctype="multipart/form-data">
+    <p>
+        Sube un archivo CSV para entrenamiento y luego haz clic en el botón para subir y reentrenar el modelo.
+    </p>
     <input type="file" id="file-input" name="file" accept=".csv" required>
-    <button type="submit">Subir CSV</button>
+    <button type="submit">Subir y Reentrenar</button>
 </form>
 
-<p id="upload-result"></p>
+<p id="upload-retrain-result"></p>
 
 <script>
-    document.getElementById('upload-form').addEventListener('submit', function (e) {
+    // Script para el formulario de predicción
+    document.getElementById('predict-form').addEventListener('submit', function (e) {
         e.preventDefault();
-        const formData = new FormData();
+        const feat00 = document.getElementById('ammonia_mg_l').value;
+        const feat01 = document.getElementById('biochemical_oxygen_demand_mg_l').value;
+        const feat02 = document.getElementById('dissolved_oxygen_mg_l').value;
+
+        const feat03 = document.getElementById('orthophosphate_mg_l').value;
+        const feat04 = document.getElementById('ph_ph_units').value;
+        const feat05 = document.getElementById('temperature_cel').value;
+
+        const feat06 = document.getElementById('nitrogen_mg_l').value;
+        const feat07 = document.getElementById('nitrate_mg_l').value;
+
+        fetch(`/v1/predict?ammonia_mg_l=${feat00}&biochemical_oxygen_demand_mg_l=${feat01}&dissolved_oxygen_mg_l=${feat02}&orthophosphate_mg_l=${feat03}&ph_ph_units=${feat04}&temperature_cel=${feat05}&nitrogen_mg_l=${feat06}&nitrate_mg_l=${feat07}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predict-result').innerText = `Predicción de ventas: ${data.predictions.toFixed(2)}`;
+            })
+            .catch(error => {
+                document.getElementById('predict-result').innerText = `Error: ${error}`;
+            });
+    });
+
+    // Script para subir CSV y reentrenar
+    document.getElementById('upload-retrain-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
         const fileInput = document.getElementById('file-input');
+        const resultDisplay = document.getElementById('upload-retrain-result');
 
         if (fileInput.files.length === 0) {
-            document.getElementById('upload-result').innerText = "Por favor selecciona un archivo CSV.";
+            resultDisplay.innerText = "Por favor selecciona un archivo CSV.";
             return;
         }
 
+        const formData = new FormData();
         formData.append('file', fileInput.files[0]);
 
+        // Primero subimos el archivo
         fetch('/v1/upload', {
             method: 'POST',
             body: formData
         })
         .then(response => response.text())
-        .then(data => {
-            document.getElementById('upload-result').innerText = data;
+        .then(uploadResponse => {
+            resultDisplay.innerText = "Archivo subido correctamente. Reentrenando modelo...";
+
+            // Luego, al subir bien, llamamos al endpoint de reentrenar
+            return fetch('/v1/retrain');
+        })
+        .then(response => response.text())
+        .then(retrainResponse => {
+            resultDisplay.innerText = "Reentrenamiento completado:\n" + retrainResponse;
         })
         .catch(error => {
-            document.getElementById('upload-result').innerText = `Error: ${error}`;
+            resultDisplay.innerText = `Error: ${error}`;
         });
     });
 </script>
