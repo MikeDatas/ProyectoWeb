@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error, mean_absolute_error,r2_score
 from sklearn.linear_model import Lasso
 import pickle
 import os
@@ -30,7 +30,7 @@ model = pickle.load(open(model_path, 'rb'))
 # End Point "/"
 @app.route('/', methods=['GET'])
 def home():
-    # return "<h1>My API</h1><p>Ésta es una API para predicción de ventas en función de inversión en marketing.</p>"
+    # return "<h1>My API</h1><p>Ésta es una API para predicción de calidad de agua superficial.</p>"
     return send_from_directory(".", "index.html")
 
 
@@ -77,20 +77,35 @@ def predict():
 def retrain():
     if os.path.exists(root_path + "data/aguas_new.csv"):
         data = pd.read_csv(root_path +'data/aguas_new.csv')
+        data.columns = [col.strip().lower().replace(" ", "_").replace("(", "").replace(")", "").replace("/", "_") for col in data.columns]
+        feature_cols = [
+            'ammonia_mg_l',
+            'biochemical_oxygen_demand_mg_l',
+            'dissolved_oxygen_mg_l',
+            'orthophosphate_mg_l',
+            'ph_ph_units',
+            'temperature_cel',
+            'nitrogen_mg_l',
+            'nitrate_mg_l'
+        ]
 
-        X_train, X_test, y_train, y_test = train_test_split(data.drop(columns=['sales']),
-                                                        data['sales'],
+        # 1. Datos
+        X = data[feature_cols]
+        y = data['ccme_values']
+
+        X_train, X_test, y_train, y_test = train_test_split(X,y,
                                                         test_size = 0.20,
                                                         random_state=42)
 
-        model = Lasso(alpha=6000)
         model.fit(X_train, y_train)
-        rmse = np.sqrt(mean_squared_error(y_test, model.predict(X_test)))
-        mape = mean_absolute_percentage_error(y_test, model.predict(X_test))
-        model.fit(data.drop(columns=['sales']), data['sales'])
+        y_pred = model.predict(X_test)
+
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        r2 = r2_score(y_test, y_pred)
         pickle.dump(model, open('model_reg.pkl', 'wb'))
 
-        return f"Model retrained. New evaluation metric RMSE: {str(rmse)}, MAPE: {str(mape)}"
+        return f"Model retrained. New evaluation metric RMSE: {str(rmse)}, MAPE: {str(mae)}, R²:{str(r2)} "
     else:
         return f"<h2>New data for retrain NOT FOUND. Nothing done!</h2>"
 
