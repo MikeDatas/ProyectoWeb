@@ -21,6 +21,11 @@ print(__file__)
 # os.chdir(os.path.dirname(__file__))
 root_path = "/home/ProyectoWeb25/ProyectoWeb/"
 
+# Carga el modelo UNA vez (al arrancar la app)
+model_path = os.path.join(os.path.dirname(__file__), 'model_reg.pkl')
+if not os.path.exists(model_path):
+    raise FileNotFoundError(f"Modelo no encontrado en {model_path}")
+model = pickle.load(open(model_path, 'rb'))
 
 # End Point "/"
 @app.route('/', methods=['GET'])
@@ -31,30 +36,42 @@ def home():
 
 @app.route('/v1/predict', methods=['GET'])
 def predict():
-    model = pickle.load(open('model_reg.pkl','rb'))
-    ammonia_mg_l = request.args.get('ammonia_mg_l', None)
-    biochemical_oxygen_demand_mg_l = request.args.get('biochemical_oxygen_demand_mg_l', None)
-    dissolved_oxygen_mg_l = request.args.get('dissolved_oxygen_mg_l', None)
+    # Obtener parámetros
+    ammonia_mg_l = request.args.get('ammonia_mg_l')
+    biochemical_oxygen_demand_mg_l = request.args.get('biochemical_oxygen_demand_mg_l')
+    dissolved_oxygen_mg_l = request.args.get('dissolved_oxygen_mg_l')
+    orthophosphate_mg_l = request.args.get('orthophosphate_mg_l')
+    ph_ph_units = request.args.get('ph_ph_units')
+    temperature_cel = request.args.get('temperature_cel')
+    nitrogen_mg_l = request.args.get('nitrogen_mg_l')
+    nitrate_mg_l = request.args.get('nitrate_mg_l')
 
-    orthophosphate_mg_l = request.args.get('orthophosphate_mg_l', None)
-    ph_ph_units = request.args.get('ph_ph_units', None)
-    temperature_cel = request.args.get('temperature_cel', None)
+    # Verificar que ninguno sea None (faltan parámetros)
+    if None in [ammonia_mg_l, biochemical_oxygen_demand_mg_l, dissolved_oxygen_mg_l,
+                orthophosphate_mg_l, ph_ph_units, temperature_cel,
+                nitrogen_mg_l, nitrate_mg_l]:
+        return jsonify({"error": "Faltan parámetros obligatorios"}), 400
 
-    nitrogen_mg_l = request.args.get('nitrogen_mg_l', None)
-    nitrate_mg_l = request.args.get('nitrate_mg_l', None)
+    try:
+        features = [
+            float(ammonia_mg_l),
+            float(biochemical_oxygen_demand_mg_l),
+            float(dissolved_oxygen_mg_l),
+            float(orthophosphate_mg_l),
+            float(ph_ph_units),
+            float(temperature_cel),
+            float(nitrogen_mg_l),
+            float(nitrate_mg_l),
+        ]
+    except ValueError:
+        return jsonify({"error": "Parámetros no válidos, deben ser números"}), 400
 
-    #print(ammonia_mg_l,biochemical_oxygen_demand_mg_l,dissolved_oxygen_mg_l,orthophosphate_mg_l,ph_ph_units,temperature_cel,nitrogen_mg_l,nitrate_mg_l)
-    #print(type(tv))
-
-    if ammonia_mg_l is None or biochemical_oxygen_demand_mg_l is None or dissolved_oxygen_mg_l or None or orthophosphate_mg_l is None or ph_ph_units is None or temperature_cel is None or nitrogen_mg_l is None or nitrate_mg_l is None:
-        return "Args empty, the data are not enough to predict"
-    else:
-        prediction = model.predict([[float(ammonia_mg_l),float(biochemical_oxygen_demand_mg_l),float(dissolved_oxygen_mg_l),
-                                     float(orthophosphate_mg_l),float(ph_ph_units),float(temperature_cel),
-                                     float(nitrogen_mg_l),float(nitrate_mg_l)]])
-    # [[float(tv),float(radio),float(newspaper)]]
-    # [pred1]
-    return jsonify({'predictions': prediction[0]})
+    # Predicción
+    try:
+        prediction = model.predict([features])
+        return jsonify({'predictions': prediction[0]})
+    except Exception as e:
+        return jsonify({"error": f"Error en la predicción: {str(e)}"}), 500
 
 @app.route('/v1/retrain', methods=['GET'])
 def retrain():
