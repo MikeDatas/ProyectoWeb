@@ -1,52 +1,250 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Predicción de potabilidad</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="styles.css">
+  <title>Predicción de potabilidad</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-        input, button {
-            margin: 10px 0;
-            padding: 8px;
-        }
-    </style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #e0f7fa; /* azul claro */
+      /* Elimino color blanco para que texto sea negro por defecto */
+    }
+
+    h1, h2 {
+      color: #007acc; /* azul fuerte para títulos */
+      text-align: center;
+    }
+
+    .slider-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .slider-box {
+      width: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .slider-box label {
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      height: 40px;
+      overflow: hidden;
+      color: #003c5c; /* azul oscuro para etiquetas */
+    }
+
+    .value-display {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: #003c5c; /* azul oscuro para valores */
+    }
+
+    .slider-wrapper {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slider-box input[type="range"] {
+      transform: rotate(-90deg);
+      width: 160px;
+      height: 30px;
+      appearance: none;
+      background: #00bcd4; /* azul medio */
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      margin: 0;
+    }
+
+    .slider-box input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #ffffff; /* blanco */
+      border: 2px solid #007acc;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .slider-box input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #ffffff; /* blanco */
+      border: 2px solid #007acc;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    #predict-result {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 30px;
+    color: #003c5c;
+  }
+</style>
+
 </head>
 <body>
-    <h1>Formulario de Valores de agua superficial</h1>
-    <form id="predict-form">
-        <label>Amoniaco:</label><br>
-        <input type="number" step="any" id="ammonia_mg_l" required><br>
+  <h1>Valores de agua superficial</h1>
 
-        <label>Oxígeno Bioquímico Demandado:</label><br>
-        <input type="number" step="any" id="biochemical_oxygen_demand_mg_l" required><br>
+  <form id="predict-form">
+    <div class="slider-container">
 
-        <label>Oxígeno Disuelto:</label><br>
-        <input type="number" step="any" id="dissolved_oxygen_mg_l" required><br>
+      <div class="slider-box">
+        <label for="ammonia_mg_l">Amoniaco</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="10" step="0.1" id="ammonia_mg_l">
+        </div>
+        <div class="value-display" id="val-ammonia_mg_l">0</div>
+      </div>
 
-        <label>Ortofosfatos:</label><br>
-        <input type="number" step="any" id="orthophosphate_mg_l" required><br>
+      <div class="slider-box">
+        <label for="biochemical_oxygen_demand_mg_l">Demanda Bioquímica</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="10" step="0.1" id="biochemical_oxygen_demand_mg_l">
+        </div>
+        <div class="value-display" id="val-biochemical_oxygen_demand_mg_l">0</div>
+      </div>
 
-        <label>Ph Ph Unidades:</label><br>
-        <input type="number" step="any" id="ph_ph_units" required><br>
+      <div class="slider-box">
+        <label for="dissolved_oxygen_mg_l">Oxígeno Disuelto</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="10" step="0.1" id="dissolved_oxygen_mg_l">
+        </div>
+        <div class="value-display" id="val-dissolved_oxygen_mg_l">0</div>
+      </div>
 
-        <label>Temperatura:</label><br>
-        <input type="number" step="any" id="temperature_cel" required><br>
+      <div class="slider-box">
+        <label for="orthophosphate_mg_l">Ortofosfato</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="10" step="0.1" id="orthophosphate_mg_l">
+        </div>
+        <div class="value-display" id="val-orthophosphate_mg_l">0</div>
+      </div>
 
-        <label>Nitrógeno:</label><br>
-        <input type="number" step="any" id="nitrogen_mg_l" required><br>
+      <div class="slider-box">
+        <label for="ph_ph_units">pH</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="14" step="0.1" id="ph_ph_units">
+        </div>
+        <div class="value-display" id="val-ph_ph_units">0</div>
+      </div>
 
-        <label>Nitrato:</label><br>
-        <input type="number" step="any" id="nitrate_mg_l" required><br>
+      <div class="slider-box">
+        <label for="temperature_cel">Temperatura (°C)</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="40" step="0.5" id="temperature_cel">
+        </div>
+        <div class="value-display" id="val-temperature_cel">0</div>
+      </div>
 
-        <button type="submit">Predecir</button>
-    </form>
+      <div class="slider-box">
+        <label for="nitrogen_mg_l">Nitrógeno</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="10" step="0.1" id="nitrogen_mg_l">
+        </div>
+        <div class="value-display" id="val-nitrogen_mg_l">0</div>
+      </div>
 
-    <p id="predict-result"></p>
+      <div class="slider-box">
+        <label for="nitrate_mg_l">Nitrato</label>
+        <div class="slider-wrapper">
+          <input type="range" min="0" max="10" step="0.1" id="nitrate_mg_l">
+        </div>
+        <div class="value-display" id="val-nitrate_mg_l">0</div>
+      </div>
 
-    <hr>
+    </div>
+  </form>
+
+    <!-- <p id="predict-result">Mueve un slider para obtener una predicción...</p> -->
+
+    <p id="predict-result">
+        Predicción: <span id="prediction-value">...</span>
+        <span id="prediction-emoji" style="font-size: 3rem; margin-left: 10px;">😐</span>
+    </p>
+
+  <script>
+  const sliders = document.querySelectorAll('input[type="range"]');
+
+  function updateSliderVisual(slider) {
+    const value = parseFloat(slider.value);
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const ratio = (value - min) / (max - min);
+
+    const r = Math.round(255 * ratio);
+    const b = Math.round(255 * (1 - ratio));
+    const g = 0;
+
+    slider.style.background = `rgb(${r}, ${g}, ${b})`;
+
+    const valDisplay = document.getElementById(`val-${slider.id}`);
+    valDisplay.textContent = value.toFixed(2);
+  }
+
+  function getPrediction() {
+    const params = {};
+    sliders.forEach(slider => {
+      params[slider.id] = slider.value;
+    });
+
+    const query = new URLSearchParams(params).toString();
+
+    fetch(`/v1/predict?${query}`)
+      .then(res => res.json())
+      .then(data => {
+        const val = data.predictions;
+        document.getElementById('prediction-value').textContent = val.toFixed(2);
+
+        let emoji = '😐'; // Neutral por defecto
+
+        if (val >= 80) {
+          emoji = '😄';  // Feliz
+        } else if (val >= 60) {
+          emoji = '🙂';  // Ligeramente feliz
+        } else if (val >= 40) {
+          emoji = '😐';  // Neutral
+        } else if (val >= 20) {
+          emoji = '🤢';  // Enfermo
+        } else {
+          emoji = '🤮';  // Vomitando
+        }
+
+        document.getElementById('prediction-emoji').textContent = emoji;
+      })
+      .catch(error => {
+        document.getElementById('prediction-value').textContent = 'Error';
+        document.getElementById('prediction-emoji').textContent = '';
+      });
+  }
+
+  sliders.forEach(slider => {
+    updateSliderVisual(slider);
+    slider.addEventListener('input', () => {
+      updateSliderVisual(slider);
+      getPrediction();
+    });
+  });
+
+  getPrediction();
+</script>
+
+
+  <hr>
 
     <h2>Subir CSV para Reentrenar</h2>
     <form id="retrain-form">
