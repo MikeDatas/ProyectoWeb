@@ -19,7 +19,7 @@ print(__file__)
 # print("... que está en el directorio:")
 # print(os.path.dirname(__file__))
 # os.chdir(os.path.dirname(__file__))
-root_path = "/home/ItsazainBilbao2/TallerDespliegue2503/"
+root_path = "/home/ProyectoWeb25/ProyectoWeb/"
 
 
 # End Point "/"
@@ -31,18 +31,27 @@ def home():
 
 @app.route('/v1/predict', methods=['GET'])
 def predict():
-    model = pickle.load(open('ad_model.pkl','rb'))
-    tv = request.args.get('tv', None)
-    radio = request.args.get('radio', None)
-    newspaper = request.args.get('newspaper', None)
+    model = pickle.load(open('reg_pipeline_xgb_water.pkl','rb'))
+    ammonia_mg_l = request.args.get('ammonia_mg_l', None)
+    biochemical_oxygen_demand_mg_l = request.args.get('biochemical_oxygen_demand_mg_l', None)
+    dissolved_oxygen_mg_l = request.args.get('dissolved_oxygen_mg_l', None)
 
-    print(tv,radio,newspaper)
-    print(type(tv))
+    orthophosphate_mg_l = request.args.get('orthophosphate_mg_l', None)
+    ph_ph_units = request.args.get('ph_ph_units', None)
+    temperature_cel = request.args.get('temperature_cel', None)
 
-    if tv is None or radio is None or newspaper is None:
+    nitrogen_mg_l = request.args.get('nitrogen_mg_l', None)
+    nitrate_mg_l = request.args.get('nitrate_mg_l', None)
+
+    #print(ammonia_mg_l,biochemical_oxygen_demand_mg_l,dissolved_oxygen_mg_l,orthophosphate_mg_l,ph_ph_units,temperature_cel,nitrogen_mg_l,nitrate_mg_l)
+    #print(type(tv))
+
+    if ammonia_mg_l is None or biochemical_oxygen_demand_mg_l is None or dissolved_oxygen_mg_l or None or orthophosphate_mg_l is None or ph_ph_units is None or temperature_cel is None or nitrogen_mg_l is None or nitrate_mg_l is None:
         return "Args empty, the data are not enough to predict"
     else:
-        prediction = model.predict([[float(tv),float(radio),float(newspaper)]])
+        prediction = model.predict([[float(ammonia_mg_l),float(biochemical_oxygen_demand_mg_l),float(dissolved_oxygen_mg_l),
+                                     float(orthophosphate_mg_l),float(ph_ph_units),float(temperature_cel),
+                                     float(nitrogen_mg_l),float(nitrate_mg_l)]])
     # [[float(tv),float(radio),float(newspaper)]]
     # [pred1]
     return jsonify({'predictions': prediction[0]})

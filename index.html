@@ -17,14 +17,29 @@
 <body>
     <h1>Formulario de Predicción</h1>
     <form id="predict-form">
-        <label>TV:</label><br>
-        <input type="number" step="any" id="tv" required><br>
+        <label>Amoniaco:</label><br>
+        <input type="number" step="any" id="ammonia_mg_l" required><br>
 
-        <label>Radio:</label><br>
-        <input type="number" step="any" id="radio" required><br>
+        <label>Oxígeno Bioquímico Demand:</label><br>
+        <input type="number" step="any" id="biochemical_oxygen_demand_mg_l" required><br>
 
-        <label>Newspaper:</label><br>
-        <input type="number" step="any" id="newspaper" required><br>
+        <label>Oxígeno Disuelto:</label><br>
+        <input type="number" step="any" id="dissolved_oxygen_mg_l" required><br>
+
+        <label>Orthofosfato:</label><br>
+        <input type="number" step="any" id="orthophosphate_mg_l" required><br>
+
+        <label>Ph Ph Unidades:</label><br>
+        <input type="number" step="any" id="ph_ph_units" required><br>
+
+        <label>Temperatura:</label><br>
+        <input type="number" step="any" id="temperature_cel" required><br>
+
+        <label>Nkitrogeno:</label><br>
+        <input type="number" step="any" id="nitrogen_mg_l" required><br>
+
+        <label>Nitrato:</label><br>
+        <input type="number" step="any" id="nitrate_mg_l" required><br>
 
         <button type="submit">Predecir</button>
     </form>
@@ -47,11 +62,18 @@
     <script>
         document.getElementById('predict-form').addEventListener('submit', function (e) {
             e.preventDefault();
-            const tv = document.getElementById('tv').value;
-            const radio = document.getElementById('radio').value;
-            const newspaper = document.getElementById('newspaper').value;
+            const feat00 = document.getElementById('ammonia_mg_l').value;
+            const feat01 = document.getElementById('biochemical_oxygen_demand_mg_l').value;
+            const feat02 = document.getElementById('dissolved_oxygen_mg_l').value;
 
-            fetch(`/v1/predict?tv=${tv}&radio=${radio}&newspaper=${newspaper}`)
+            const feat03 = document.getElementById('orthophosphate_mg_l').value;
+            const feat04 = document.getElementById('ph_ph_units').value;
+            const feat05 = document.getElementById('temperature_cel').value;
+
+            const feat06 = document.getElementById('nitrogen_mg_l').value;
+            const feat07 = document.getElementById('nitrate_mg_l').value;
+
+            fetch(`/v1/predict?ammonia_mg_l=${feat00}&biochemical_oxygen_demand_mg_l=${feat01}&dissolved_oxygen_mg_l=${feat02}&orthophosphate_mg_l=${feat03}&ph_ph_units=${feat04}&temperature_cel=${feat05}&nitrogen_mg_l=${feat06}&nitrate_mg_l=${feat07}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('predict-result').innerText = `Predicción de ventas: ${data.predictions.toFixed(2)}`;

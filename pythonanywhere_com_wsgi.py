@@ -1,14 +1,3 @@
-# This file contains the WSGI configuration required to serve up your
-# web application at http://ItsazainBilbao2.pythonanywhere.com/
-# It works by setting the variable 'application' to a WSGI handler of some
-# description.
-#
-
-# +++++++++++ GENERAL DEBUGGING TIPS +++++++++++
-# getting imports and sys.path right can be fiddly!
-# We've tried to collect some general tips here:
-# https://help.pythonanywhere.com/pages/DebuggingImportError
-
 
 # +++++++++++ HELLO WORLD +++++++++++
 # A little pure-wsgi hello world we've cooked up, just
@@ -62,7 +51,7 @@ import sys
 ## "git clone git@github.com/myusername/myproject.git"
 ## ...or uploaded files to the directory "myproject", then you should
 ## specify "/home/ItsazainBilbao2/myproject"
-path = "/home/ItsazainBilbao2/TallerDespliegue2503/"
+path = "/home/ProyectoWeb25/ProyectoWeb/"
 if path not in sys.path:
     sys.path.append(path)
 #
