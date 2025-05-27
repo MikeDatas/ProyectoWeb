@@ -31,7 +31,7 @@ def home():
 
 @app.route('/v1/predict', methods=['GET'])
 def predict():
-    model = pickle.load(open('reg_pipeline_xgb_water.pkl','rb'))
+    model = pickle.load(open('model_reg.pkl','rb'))
     ammonia_mg_l = request.args.get('ammonia_mg_l', None)
     biochemical_oxygen_demand_mg_l = request.args.get('biochemical_oxygen_demand_mg_l', None)
     dissolved_oxygen_mg_l = request.args.get('dissolved_oxygen_mg_l', None)
