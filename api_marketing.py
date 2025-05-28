@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error, mean_absolute_error,r2_score
-from sklearn.linear_model import Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error,r2_score
 import pickle
 import os
-from flask import Flask, jsonify, request, abort, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
